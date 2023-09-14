@@ -1,9 +1,8 @@
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Duke {
     private static int count = 0;
-    private static String[] list = new String[100];
+    private static Task[] list = new Task[100];
 
     public static void main(String[] args) {
         printHelloWorld();
@@ -33,18 +32,49 @@ public class Duke {
             formatter();
             System.out.print(i + 1);
             System.out.print(". ");
-            System.out.println(list[i]);
+            list[i].print();
         }
         printSeparator();
     }
 
+    private static boolean validateInput(String input, String command) {
+        int size = command.length();
+        return input.length() > size && input.substring(0, size).equalsIgnoreCase(command);
+    }
+
     private static void handleInput(String input) {
-        printSeparator();
-        formatter();
-        list[count] = input;
-        count++;
-        System.out.println("added: " + input);
-        printSeparator();
+        input = input.trim();
+        Boolean isT = validateInput(input, "todo");
+        Boolean isD = validateInput(input, "deadline");
+        Boolean isE = validateInput(input, "event");
+        if (isT || isD || isE) {
+            Task item;
+            if (isT) {
+                item = new ToDos(input);
+            } else if (isD) {
+                item = new Deadlines(input);
+            } else {
+                item = new Events(input);
+            }
+            list[count] = item;
+            count++;
+
+            printSeparator();
+            formatter();
+            System.out.println("Got it. I've added this task:");
+            formatter();
+            formatter();
+            item.print();
+            formatter();
+            System.out.println("Now you have " + count + " task(s) in the list");
+            printSeparator();
+
+        } else {
+            printSeparator();
+            formatter();
+            System.out.println("Invalid command");
+            printSeparator();
+        }
     }
 
     private static void printSeparator() {
