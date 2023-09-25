@@ -47,14 +47,15 @@ public class Duke {
         Boolean isT = validateInput(input, "todo");
         Boolean isD = validateInput(input, "deadline");
         Boolean isE = validateInput(input, "event");
+
         if (isT || isD || isE) {
             Task item;
             if (isT) {
-                item = new ToDos(input);
+                item = new ToDos(input.substring(5));
             } else if (isD) {
-                item = new Deadlines(input);
+                item = new Deadlines(input.substring(9));
             } else {
-                item = new Events(input);
+                item = new Events(input.substring(6));
             }
             list[count] = item;
             count++;

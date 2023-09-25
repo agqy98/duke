@@ -26,7 +26,7 @@ public class Events extends Task {
 
     @Override
     public String getType() {
-        return "D";
+        return "E";
     }
 
     @Override
