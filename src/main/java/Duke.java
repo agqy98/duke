@@ -1,16 +1,18 @@
 import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Duke {
-    private static int list_count = 0;
-    private static Task[] list = new Task[100];
+    private static ArrayList<Task> list = new ArrayList<>();
     private static final Map<TaskType, String> TASK_KEYWORDS = new HashMap<>();
 
     static {
         TASK_KEYWORDS.put(TaskType.TODO, "todo");
         TASK_KEYWORDS.put(TaskType.DEADLINE, "deadline");
         TASK_KEYWORDS.put(TaskType.EVENT, "event");
+        TASK_KEYWORDS.put(TaskType.DELETE, "delete");
     }
 
     public static void main(String[] args) {
@@ -31,49 +33,61 @@ public class Duke {
     private static void processInput(String input) {
         if (input.equalsIgnoreCase("list")) {
             printTaskList();
-        } else {
-            TaskType taskType = getTaskType(input);
-            if (taskType == null) {
-                printErrorMessage(ErrorType.ERR_SYSTEM_READ_FAIL, taskType);
-                return;
-            } else {
-                ErrorType err = hasError(input, taskType);
-                if (err != null) {
-                    printErrorMessage(err, taskType);
-                    return;
-                } else {
-                    try {
-                        System.out.println(input);
-                        System.out.println(TASK_KEYWORDS.get(taskType).length());
-                        String taskDescription = input.substring(TASK_KEYWORDS.get(taskType).length() + 1);
-                        if (taskDescription.isEmpty()) {
-                            printErrorMessage(ErrorType.ERR_EMPTY_DESCRIPTION, taskType);
-                            return;
-                        } else {
-                            taskDescription = taskDescription.substring(1);
-                            switch (taskType) {
-                                case EVENT:
-                                    addTask(new Events(taskDescription));
-                                    break;
-                                case DEADLINE:
-                                    addTask(new Deadlines(taskDescription));
-                                    break;
-                                default:
-                                    addTask(new ToDos(taskDescription));
-                            }
-                        }
-                    } catch (IllegalArgumentException e) {
-                        // Handle invalid format error
-                        printErrorMessage(ErrorType.ERR_INVALID_FORMAT, taskType);
+            return;
+        }
+        TaskType taskType = getTaskType(input);
+        if (taskType == null) {
+            printErrorMessage(ErrorType.ERR_SYSTEM_READ_FAIL, taskType);
+            return;
+        }
+
+        ErrorType err = hasError(input, taskType);
+        if (err != null) {
+            printErrorMessage(err, taskType);
+            return;
+        }
+
+        String taskDescription = input.substring(TASK_KEYWORDS.get(taskType).length() + 1).trim();
+        if (taskDescription.isEmpty()) {
+            printErrorMessage(ErrorType.ERR_EMPTY_DESCRIPTION, taskType);
+            return;
+        }
+        try {
+            if (taskType == TaskType.DELETE) {
+                try {
+                    int intValue = Integer.parseInt(taskDescription);
+                    if (intValue > 0 && intValue <= list.size()) {
+                        deleteTaskToList(intValue - 1);
+                    } else {
+                        printErrorMessage(ErrorType.ERR_EXCEED_LIMIT, taskType);
                         return;
                     }
+                } catch (NumberFormatException e) {
+                    printErrorMessage(ErrorType.ERR_EXPECT_NUMBER, taskType);
+                    return;
                 }
+            } else {
+                addTaskToList(createTask(taskType, taskDescription));
             }
+        } catch (IllegalArgumentException e) {
+            printErrorMessage(ErrorType.ERR_INVALID_FORMAT, taskType);
+            return;
+        }
+    }
+
+    private static Task createTask(TaskType taskType, String taskDescription) {
+        switch (taskType) {
+            case EVENT:
+                return new Events(taskDescription);
+            case DEADLINE:
+                return new Deadlines(taskDescription);
+            default:
+                return new ToDos(taskDescription);
         }
     }
 
     private static ErrorType hasError(String input, TaskType t) {
-        // Input begins with "[command]"
+        // for input begins with "[command]"
         String command = TASK_KEYWORDS.get(t);
         if (input.trim().equalsIgnoreCase(command)) {
             return ErrorType.ERR_EMPTY_DESCRIPTION;
@@ -95,21 +109,34 @@ public class Duke {
         return null;
     }
 
-    private static void addTask(Task task) {
-        list[list_count] = task;
-        list_count++;
+    private static void addTaskToList(Task task) {
+        list.add(task);
         printSeparator();
         System.out.println("Got it. I've added this task:");
         task.print();
-        System.out.println("Now you have " + list_count + " task(s) in the list");
+        System.out.println("Now you have " + list.size() + " task(s) in the list");
+        printSeparator();
+    }
+
+    private static void deleteTaskToList(int index) {
+        Task existing = list.get(index);
+        list.remove(index);
+
+        for (Task l : list) {
+            System.out.println(l.description);
+        }
+        printSeparator();
+        System.out.println("Noted. I've removed this task:");
+        existing.print();
+        System.out.println("Now you have " + list.size() + " task(s) in the list");
         printSeparator();
     }
 
     private static void printTaskList() {
         printSeparator();
-        for (int i = 0; i < list_count; i++) {
+        for (int i = 0; i < list.size(); i++) {
             System.out.print(i + 1 + ". ");
-            list[i].print();
+            list.get(i).print();
         }
         printSeparator();
     }
@@ -153,6 +180,14 @@ public class Duke {
             case ERR_POSSIBLE_TYPO:
                 System.out.printf("OOPS! It appears there might be a typo. Did you mean to write '%s'?",
                         TASK_KEYWORDS.get(t));
+                System.out.println("");
+                break;
+            case ERR_EXPECT_NUMBER:
+                System.out.printf("Expect a number (1-%d) after %s", list.size(), TASK_KEYWORDS.get(t));
+                System.out.println("");
+                break;
+            case ERR_EXCEED_LIMIT:
+                System.out.printf("The specified number exceeds the limit (1-%d)", list.size());
                 System.out.println("");
                 break;
             default:
