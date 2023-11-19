@@ -20,35 +20,61 @@ import java.io.PrintStream;
 import java.util.List;
 
 public class DukeTest {
-    String[] desc = {
-            "Test Case 1",
-            "Test Case 2 /by 2023-01-01"
-    };
+    String END = "\nbye";
 
     @Test
-    void testTodo() {
-        String input = "todo " + desc[0] + "\nbye";
-
-        // Assert
-        String expectedOutput = "Got it. I've added this task:";
-        expectedOutput += "\n";
-        expectedOutput += "[T][ ] " + desc[0];
-        expectedOutput += "\n";
-        expectedOutput = "Now you have 1 task(s) in the list"; // Need to clean data/duke.txt before test
+    void testTypo() {
+        String input = "lisy" + END;
+        String expectedOutput = "OOPS! It appears there might be a typo. Did you mean to write 'list'?";
 
         runAndAssertTask(input, expectedOutput);
     }
 
-    @Test 
-    void testDeadline(){
-        String input = "todo " + desc[1] + "\nbye";
+    @Test
+    void testTodo() {
+        String input = "todo read book" + END;
 
         // Assert
-        String expectedOutput = "Got it. I've added this task:";
-        expectedOutput += "\n";
-        expectedOutput += "[D][ ] " + desc[1] + " (by: Jan 1 2023)";
-        expectedOutput += "\n";
-        expectedOutput = "Now you have 2 task(s) in the list"; // Need to clean data/duke.txt before test
+        String expectedOutput = "[T][ ] read book";
+
+        runAndAssertTask(input, expectedOutput);
+    }
+
+    @Test
+    void testDeadline() {
+        String input = "deadline return book /by 2023-06-06" + END;
+
+        // Assert
+        String expectedOutput = "[D][ ] return book (by: Jun 6 2023)";
+
+        runAndAssertTask(input, expectedOutput);
+    }
+
+    @Test
+    void testEvent() {
+        String input = "event project meeting /from 2023-08-06 14:00 /to 2023-08-06 16:00" + END;
+
+        // Assert
+        String expectedOutput = "[E][ ] project meeting (from: Aug 6 2023, 02:00 PM to: 04:00 PM)";
+
+        runAndAssertTask(input, expectedOutput);
+    }
+
+    @Test
+    void testMark() {
+        String input = "mark 1" + END;
+
+        // Assert
+        String expectedOutput = "Got it. I've mark this task as done:";
+
+        runAndAssertTask(input, expectedOutput);
+    }
+    @Test
+    void testUnmark() {
+        String input = "unmark 1" + END;
+
+        // Assert
+        String expectedOutput = "Got it. I've mark this task as undone:";
 
         runAndAssertTask(input, expectedOutput);
     }

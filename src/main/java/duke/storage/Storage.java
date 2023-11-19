@@ -8,7 +8,9 @@ import duke.parser.Parser;
 import duke.task.Task;
 
 public class Storage {
-    private static final String FILE_PATH = "./data/duke.txt";
+    private static final String FOLDER_PATH = "./data";
+    private static final String FILE_PATH = FOLDER_PATH + "/duke.txt";
+    private static final String DUKE_PATH = "./text-ui-test/EXPECTED.TXT";
 
     public List<Task> loadTasks() {
         List<Task> list = new ArrayList<>();
@@ -16,7 +18,8 @@ public class Storage {
 
         // Check if the file exists before attempting to load
         if (!file.exists()) {
-            // System.out.println("No saved tasks found. Starting with an empty task list.");
+            // System.out.println("No saved tasks found. Starting with an empty task
+            // list.");
             return list;
         }
 
@@ -35,7 +38,7 @@ public class Storage {
     public void saveTasks(List<Task> list) {
         try {
             // Ensure the directory exists
-            File directory = new File("./data");
+            File directory = new File(FOLDER_PATH);
             if (!directory.exists()) {
                 directory.mkdirs();
             }
@@ -50,4 +53,22 @@ public class Storage {
             e.printStackTrace();
         }
     }
+
+    public String loadDuke() {
+        String result = "";
+        File file = new File(DUKE_PATH);
+        // Check if the file exists before attempting to load
+        if (file.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(DUKE_PATH))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result += line + "\n";
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } 
+        return result;
+    }
+
 }

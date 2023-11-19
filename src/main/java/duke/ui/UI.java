@@ -11,31 +11,52 @@ import duke.task.Task;
 public class UI {
     public final Map<TaskType, String> TASK_KEYWORDS = new HashMap<>();
     {
+        TASK_KEYWORDS.put(TaskType.LIST, "list");
         TASK_KEYWORDS.put(TaskType.TODO, "todo");
         TASK_KEYWORDS.put(TaskType.DEADLINE, "deadline");
         TASK_KEYWORDS.put(TaskType.EVENT, "event");
         TASK_KEYWORDS.put(TaskType.DELETE, "delete");
+        TASK_KEYWORDS.put(TaskType.FIND, "find");
+        TASK_KEYWORDS.put(TaskType.MARK, "mark");
+        TASK_KEYWORDS.put(TaskType.UNMARK, "unmark");
     }
 
-    public void printTaskList(List<Task> list, TaskType t) {
+    public void printTaskList(List<Task> list) {
         printSeparator();
-        if (t == TaskType.FIND) {
-            System.out.println("Here are the matching tasks in your list:");
-        } else if (t == TaskType.TODO ||
-                t == TaskType.EVENT ||
-                t == TaskType.DEADLINE) {
-            System.out.println("Unable to add as there is duplicate record:");
-        }
+        System.out.println("Here are the tasks in your list:");
         for (int i = 0; i < list.size(); i++) {
             System.out.print(i + 1 + ". ");
             list.get(i).print();
         }
         printSeparator();
     }
-
-    public void printWelcomeMessage() {
+    public void printSelectedTasks(List<Task> originalList, List<Task> printList, TaskType t) {
         printSeparator();
-        System.out.println("Hello! I'm AngelBot!");
+        if (t == TaskType.FIND) {
+            System.out.println("Here are the matching tasks in your list:");
+        } else if (t == TaskType.TODO ||
+                t == TaskType.EVENT ||
+                t == TaskType.DEADLINE) {
+            System.out.println("Unable to add due to a duplicate record.");
+            System.out.println("Please provide a unique description or delete the existing record to proceed:\n");
+        }
+        for (int i = 0; i < originalList.size(); i++) {
+            if (printList.size() == 0){
+                break;
+            }
+            if (originalList.get(i).equals(printList.get(0))) {
+                System.out.print(i + 1 + ". ");
+                originalList.get(i).print();
+                printList.remove(0);
+            }
+        }
+        printSeparator();
+    }
+
+    public void printWelcomeMessage(String duke) {
+        printSeparator();
+        System.out.println(duke);
+        System.out.println("I'm AngelBot!");
         System.out.println("What can I do for you?");
         printSeparator();
     }
@@ -60,9 +81,11 @@ public class UI {
                 switch (t) {
                     case DEADLINE:
                         System.out.println("deadline [description] /by [date]");
+                        System.out.println("Date Format: yyyy-MM-dd");
                         break;
-                    case EVENT:
-                        System.out.println("event [description] /from [start time] /to [end time]");
+                        case EVENT:
+                        System.out.println("event [description] /from [start date] /to [end date]");
+                        System.out.println("Date Format: yyyy-MM-dd OR yyyy-MM-dd HH:mm");
                         break;
                     default:
                         System.out.println("todo [description]"); // Not expecting any formatting error here

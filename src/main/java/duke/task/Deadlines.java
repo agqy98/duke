@@ -2,23 +2,27 @@ package duke.task;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import duke.command.TaskType;
 
 public class Deadlines extends Task {
     LocalDate deadline;
 
+    String INPUT_DATETIME_PATTERN = "yyyy-MM-dd";
+    String OUTPUT_DATETIME_PATTERN = "MMM d yyyy";
+
     public Deadlines(String instruction) {
         super("");
         String[] items = derive(instruction);
         this.description = items[0];
-        this.deadline = convertDate(items[1]);
+        this.deadline = convertToDate(items[1]);
     }
 
     public Deadlines(String description, boolean isDone, String deadline) {
         super("", false);
         this.description = description;
-        this.deadline = convertDate(deadline);
+        this.deadline = convertToDate(deadline);
         this.isDone = isDone;
     }
 
@@ -27,7 +31,11 @@ public class Deadlines extends Task {
         if (result.length != 2) {
             throw new IllegalArgumentException("Invalid format");
         } else {
-            result[0] = result[0].trim();
+            String desc = result[0].trim();
+            if (desc.isEmpty()) {
+                throw new IllegalArgumentException("Invalid format");
+            }
+            result[0] = desc;
             result[1] = result[1].replaceAll("by", "").trim();
             return result;
         }
@@ -50,7 +58,17 @@ public class Deadlines extends Task {
 
     @Override
     public String getPrintStatus() {
+        DateTimeFormatter patt = DateTimeFormatter.ofPattern(OUTPUT_DATETIME_PATTERN);
         return "[" + (isDone ? "X" : " ") + "] " + description + " (by: "
-                + deadline.format(DateTimeFormatter.ofPattern("MMM d yyyy")) + ")";
+        + deadline.format(patt) + ")";
+    }
+
+    private LocalDate convertToDate(String d) {
+        try {
+            LocalDate date = LocalDate.parse(d);
+            return date;
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid date format, use " + INPUT_DATETIME_PATTERN, e);
+        }
     }
 }

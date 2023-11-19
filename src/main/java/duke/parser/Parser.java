@@ -1,5 +1,7 @@
 package duke.parser;
 
+import java.time.LocalDateTime;
+
 import duke.command.TaskType;
 import duke.task.Deadlines;
 import duke.task.Events;
@@ -31,8 +33,10 @@ public class Parser {
                 String deadline = parts[3];
                 return new Deadlines(description, isDone, deadline);
             case "E":
-                String from = parts[3];
-                String to = parts[4];
+                String fromStr = parts[3];
+                String toStr = parts[4];
+                LocalDateTime from = LocalDateTime.parse(fromStr);
+                LocalDateTime to = LocalDateTime.parse(toStr);
                 return new Events(description, isDone, from, to);
             default:
                 throw new IllegalArgumentException("Invalid task type: " + type);

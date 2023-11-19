@@ -8,3 +8,4 @@ public enum ErrorType {
     ERR_EXPECT_NUMBER,
     ERR_EXCEED_LIMIT
 };
+

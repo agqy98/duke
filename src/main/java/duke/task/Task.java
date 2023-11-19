@@ -1,6 +1,7 @@
 package duke.task;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import duke.command.TaskType;
@@ -23,8 +24,8 @@ public abstract class Task {
         return this.description;
     }
 
-    public void markAsDone() {
-        this.isDone = true;
+    public void setIsDone(boolean isDone) {
+        this.isDone = isDone;
     }
 
     public abstract TaskType getTaskType();
@@ -37,15 +38,5 @@ public abstract class Task {
 
     public void print() {
         System.out.println("[" + getType() + "]" + getPrintStatus());
-    }
-
-    public LocalDate convertDate(String dt) {
-        try {
-            LocalDate date = LocalDate.parse(dt);
-            return date;
-        } catch (DateTimeParseException e) {
-            System.out.println("Invalid date-time format. Please use yyyy-MM-dd.");
-            throw new IllegalArgumentException("Invalid date-time format", e);
-        }
     }
 }
